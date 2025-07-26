@@ -2,8 +2,8 @@ services:
   umami-app:
     image: ghcr.io/umami-software/umami:postgresql-latest
     container_name: umami-app
-    ports:
-      - "3000:3000"
+    # ports:
+    #   - "3000:3000"
     env_file:
       - ./.env
     depends_on:
@@ -16,6 +16,23 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - traefik-proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.umami-redirect-web-secure.redirectscheme.scheme=https"
+      - "traefik.http.services.umami-service.loadbalancer.server.port=3000"
+      - "traefik.http.routers.umami-app-http.entrypoints=web"
+      - "traefik.http.routers.umami-app-http.rule=Host(`umami.mydomain.com`)"
+      - "traefik.http.routers.umami-app-http.middlewares=umami-redirect-web-secure"
+      - "traefik.http.routers.umami-app-http.service=umami-service"
+      - "traefik.http.routers.umami-app-https.entrypoints=websecure"
+      - "traefik.http.routers.umami-app-https.rule=Host(`umami.mydomain.com`)"
+      - "traefik.http.routers.umami-app-https.tls=true"
+      - "traefik.http.routers.umami-app-https.tls.domains[0].main=umami.mydomain.com"
+      - "traefik.http.routers.umami-app-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.umami-app-https.service=umami-service"
+
   umami-db-service:
     image: postgres:15-alpine
     env_file:
@@ -28,3 +45,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - traefik-proxy
+
+networks:
+  traefik-proxy:
+    external: true
+    name: traefik
