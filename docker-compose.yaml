@@ -23,25 +23,23 @@ services:
       - "traefik.http.middlewares.umami-redirect-web-secure.redirectscheme.scheme=https"
       - "traefik.http.services.umami-service.loadbalancer.server.port=3000"
       - "traefik.http.routers.umami-app-http.entrypoints=web"
-      - "traefik.http.routers.umami-app-http.rule=Host(`umami.mydomain.com`)"
+      - "traefik.http.routers.umami-app-http.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.umami-app-http.middlewares=umami-redirect-web-secure"
-      - "traefik.http.routers.umami-app-http.service=umami-service"
+
       - "traefik.http.routers.umami-app-https.entrypoints=websecure"
-      - "traefik.http.routers.umami-app-https.rule=Host(`umami.mydomain.com`)"
+      - "traefik.http.routers.umami-app-https.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.umami-app-https.tls=true"
-      - "traefik.http.routers.umami-app-https.tls.domains[0].main=umami.mydomain.com"
+      - "traefik.http.routers.umami-app-https.tls.domains[0].main=${DOMAIN}"
       - "traefik.http.routers.umami-app-https.tls.certresolver=letsencrypt"
       - "traefik.http.routers.umami-app-https.service=umami-service"
 
   umami-db-service:
     image: postgres:15-alpine
-    env_file:
-      - ./.env.db
     volumes:
       - ./umami-db-data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5

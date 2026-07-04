@@ -24,18 +24,13 @@
 
 2. **Create environment files**
 
-   Create a `.env` file for the Umami application:
+   Create a `.env` file for the Umami application (base on `.env.example` file), mainly update for the following variables:
    ```bash
-   DATABASE_URL=postgresql://umami:umami@umami-db-service:5432/umami
-   DATABASE_TYPE=postgresql
+   POSTGRES_DB=db_name
+   POSTGRES_USER=user
+   POSTGRES_PASSWORD=password
+   DOMAIN=umami.192192192.xyz
    APP_SECRET=your-random-string-for-app-secret
-   ```
-
-   Create a `.env.db` file for the PostgreSQL database:
-   ```bash
-   POSTGRES_DB=umami
-   POSTGRES_USER=umami
-   POSTGRES_PASSWORD=umami
    ```
 
 3. **Start the services**
@@ -122,7 +117,7 @@ ports:
 ```
 
 ### Database Connection Issues
-- Ensure the `.env.db` file exists and has correct credentials
+- Ensure the `.env` file exists and has correct credentials
 - Check that the database container is healthy: `docker-compose ps`
 
 ### Can't Access Dashboard
